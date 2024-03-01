@@ -6,39 +6,23 @@
  *
  * Return: The depth of the leftmost node.
  */
-static int depth(const binary_tree_t *tree)
+static int binary_tree_is_perfect(const binary_tree_t *tree)
 {
-	int d = 0;
+	int left = 0, right = 0;
 
-	while (tree)
+	if(tree->left && tree->right)
 	{
-		d++;
-		tree = tree->left;
-	}
-	return (d);
-}
-
-/**
- * is_perfect_rec - Helper function to check if binary tree is perfect
- * @tree: pointer to the root node of the tree to check.
- * @d: depth of the leftmost node.
- * @level: current level in the tree.
- *
- * Return: 1 if the tree is perfect, 0 otherwise.
- */
-static int is_perfect_rec(const binary_tree_t *tree, int d, int level)
-{
-	if (!tree)
-		return (1);
-
-	if (!tree->left && !tree->right)
-		return (d == level + 1);
-
-	if (!tree->left || !tree->right)
+		right = 1 + tree_is_perfect(tree->left);
+		left = 1 + tree_is_perfect(tree->right);
+		if(left == right && right != 0 && left != 0)
+			return (right);
 		return (0);
-
-	return (is_perfect_rec(tree->left, d, level + 1) &&
-		is_perfect_rec(tree->right, d, level + 1));
+	}
+	else if(!tree->right && !tree->left)
+	{
+		return (1);
+	}
+	return (0);
 }
 
 /**
@@ -49,8 +33,19 @@ static int is_perfect_rec(const binary_tree_t *tree, int d, int level)
  */
 int binary_tree_is_perfect(const binary_tree_t *tree)
 {
-	int d = depth(tree);
+	int isperfect = 0;
 
-	return (is_perfect_rec(tree, d, 0));
+	if (tree == NULL)
+	{
+		return (0);
+	}
+	else
+	{
+		isperfect = tree_is_perfect(tree);
+		if(isperfect != 0)
+		{
+			return (1);
+		}
+		return (0);
+	}
 }
-
