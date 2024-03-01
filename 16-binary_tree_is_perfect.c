@@ -30,7 +30,7 @@ static int is_perfect_rec(const binary_tree_t *tree, int d, int level)
     if (!tree)
         return 1;
 
-    // Check for leaf node
+  
     if (!tree->left && !tree->right)
         return (d == level + 1);
 
