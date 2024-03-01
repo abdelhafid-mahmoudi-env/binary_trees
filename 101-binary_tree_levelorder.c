@@ -1,52 +1,87 @@
 #include "binary_trees.h"
+#include <stdlib.h>
 
 /**
- * apply_func_at_level - Applies a function to nodes at a specific level
- * @tree: Pointer to the root node of the tree
- * @func: Pointer to a function to call for each node's value
- * @level: Target level to apply the function
+ * binary_tree_t struct
  */
-static void apply_func_at_level(const binary_tree_t *tree, void (*func)(int), int level)
+typedef struct queue_s
 {
-	if (!tree)
+	const binary_tree_t *node;
+	struct queue_s *next;
+} queue_t;
+
+/**
+ * enqueue - Adds an item to the queue
+ * @head: Double pointer to the head of the queue
+ * @node: Pointer to the binary tree node to add to the queue
+ */
+void enqueue(queue_t **head, const binary_tree_t *node)
+{
+	queue_t *new_node = malloc(sizeof(queue_t));
+	queue_t *temp = *head;
+
+	if (!new_node)
 		return;
-	if (level == 0)
-		func(tree->n);
-	else
+
+	new_node->node = node;
+	new_node->next = NULL;
+
+	if (!*head)
 	{
-		apply_func_at_level(tree->left, func, level - 1);
-		apply_func_at_level(tree->right, func, level - 1);
+		*head = new_node;
+		return;
 	}
+
+	while (temp->next)
+		temp = temp->next;
+
+	temp->next = new_node;
 }
 
 /**
- * tree_height - Calculates the height of a binary tree
- * @tree: Pointer to the root node of the tree
+ * dequeue - Removes an item from the queue
+ * @head: Double pointer to the head of the queue
  *
- * Return: The height of the tree
+ * Return: The node that was removed
  */
-static int tree_height(const binary_tree_t *tree)
+const binary_tree_t *dequeue(queue_t **head)
 {
-	if (!tree)
-		return -1;
-	int left_height = tree_height(tree->left);
-	int right_height = tree_height(tree->right);
+	queue_t *temp;
+	const binary_tree_t *ret_node;
 
-	return (left_height > right_height ? left_height : right_height) + 1;
+	if (!head || !*head)
+		return (NULL);
+
+	temp = *head;
+	ret_node = temp->node;
+	*head = temp->next;
+	free(temp);
+
+	return (ret_node);
 }
 
 /**
  * binary_tree_levelorder - Goes through a binary tree using level-order traversal
  * @tree: Pointer to the root node of the tree to traverse
- * @func: Pointer to a function to call for each node's value
+ * @func: Pointer to a function to call for each node.
+ *        The value in the node must be passed as a parameter to this function.
  */
 void binary_tree_levelorder(const binary_tree_t *tree, void (*func)(int))
 {
+	queue_t *queue = NULL;
+	const binary_tree_t *temp_node;
+
 	if (!tree || !func)
 		return;
 
-	int height = tree_height(tree);
-	for (int level = 0; level <= height; level++)
-		apply_func_at_level(tree, func, level);
+	enqueue(&queue, tree);
+	while ((temp_node = dequeue(&queue)) != NULL)
+	{
+		func(temp_node->n);
+		if (temp_node->left)
+			enqueue(&queue, temp_node->left);
+		if (temp_node->right)
+			enqueue(&queue, temp_node->right);
+	}
 }
 
